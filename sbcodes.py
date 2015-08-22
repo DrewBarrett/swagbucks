@@ -12,6 +12,24 @@ def log(message):
     print('{} {}'.format(t, message))
 
 
+def swag_code_box(user, code):
+    url = 'http://www.swagbucks.com/'
+    params = {'cmd': 'sb-gimme-jx'}
+    data = {'hdnCmd': 'sb-gimme', 'pcode': code}
+    cookies = {'__urqm': user.get('urqm')}
+    r = requests.post(url, params=params, data=data, cookies=cookies)
+    return r.json()[0]
+
+
+def mobile_app(user, code):
+    url = 'http://swagbucks.com/'
+    params = {'cmd': 'apm-11', 'appid': '6', 'pcode': code,
+              'sig': user.get('sig')}
+    cookies = {'__urqm': user.get('urqm')}
+    r = requests.post(url, params=params, cookies=cookies)
+    return r.json()['message']
+
+
 def main():
     log('Starting up.')
     conf = {}
@@ -31,18 +49,16 @@ def main():
     if code == conf.get('last_code'):
         log('I already submitted the code {!r}.'.format(code))
     else:
-        url = 'http://www.swagbucks.com/'
-        params = {'cmd': 'sb-gimme-jx'}
-        data = {'hdnCmd': 'sb-gimme', 'pcode': code}
-
-        for name, urqm in conf.get('urqm', {}).items():
-            cookies = {'__urqm': urqm}
-            r = requests.post(url, params=params, data=data, cookies=cookies)
-            log('{}: {}: {}'.format(name, code, r.json()[0]))
+        for name, user in conf.get('users', {}).items():
+            response = swag_code_box(user, code)
+            log('{}: {!r}: {}'.format(name, code, response))
+            if 'Mobile App' in response:
+                response = mobile_app(user, code)
+                log('{}: {!r}: {}'.format(name, code, response))
         conf['last_code'] = code
 
     with conf_file.open('w') as f:
-        json.dump(conf, f, indent=4, sort_keys=True)
+        json.dump(conf, f, indent=2, sort_keys=True)
 
 
 if __name__ == '__main__':
