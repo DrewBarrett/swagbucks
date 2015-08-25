@@ -23,10 +23,10 @@ def swag_code_box(user, code):
 
 def mobile_app(user, code):
     url = 'http://swagbucks.com/'
-    params = {'cmd': 'apm-11', 'appid': '6', 'pcode': code,
-              'sig': user.get('sig')}
+    params = {'cmd': 'apm-11'}
+    data = {'appid': '6', 'pcode': code, 'sig': user.get('sig')}
     cookies = {'__urqm': user.get('urqm')}
-    r = requests.post(url, params=params, cookies=cookies)
+    r = requests.post(url, params=params, data=data, cookies=cookies)
     return r.json()['message']
 
 
