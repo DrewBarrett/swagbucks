@@ -30,6 +30,15 @@ def mobile_app(user, code):
     return r.json()['message']
 
 
+def swagbutton(user, code):
+    url = 'http://www.swagbucks.com/'
+    params = {'cmd': 'sb-gimme-jx', 'tbid': user.get('tbid')}
+    data = {'hdnCmd': 'sb-gimme', 'pcode': code}
+    cookies = {'__urqm': user.get('urqm')}
+    r = requests.get(url, params=params, data=data, cookies=cookies)
+    return r.json()[0]
+
+
 def main():
     log('Starting up.')
     conf = {}
@@ -54,6 +63,9 @@ def main():
             log('{}: {!r}: {}'.format(name, code, response))
             if 'Mobile App' in response:
                 response = mobile_app(user, code)
+                log('{}: {!r}: {}'.format(name, code, response))
+            if 'SwagButton' in response:
+                response = swagbutton(user, code)
                 log('{}: {!r}: {}'.format(name, code, response))
         conf['last_code'] = code
 
