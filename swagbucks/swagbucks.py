@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-
+import argparse
 import datetime
 import json
 import os
@@ -8,8 +7,14 @@ import requests
 
 
 def log(message):
-    t = datetime.datetime.utcnow().replace(microsecond=0)
-    print('{} {}'.format(t, message))
+    t = datetime.datetime.utcnow()
+    print('{} | {}'.format(t, message))
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('config')
+    return parser.parse_args()
 
 
 def swag_code_box(user, code):
@@ -40,10 +45,11 @@ def swagbutton(user, code):
 
 
 def main():
+    args = parse_args()
     log('Starting up.')
+    log('Using config file at {}'.format(args.config))
     conf = {}
-    home = pathlib.Path(os.environ.get('HOME')).resolve()
-    conf_file = home / '.config/swagbucks/sbcodes.json'
+    conf_file = pathlib.Path(args.config).resolve()
     if not conf_file.parent.exists():
         conf_file.parent.mkdir(parents=True)
     if conf_file.exists():
